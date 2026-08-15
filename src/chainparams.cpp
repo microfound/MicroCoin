@@ -44,58 +44,57 @@ static void convertSeed6(std::vector<CAddress> &vSeedsOut, const SeedSpec6 *data
 
 class CMainParams : public CChainParams {
 public:
-    CMainParams() {
-        // The message start string is designed to be unlikely to occur in normal data.
-        // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
-        // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x7d;
-        pchMessageStart[1] = 0x4f;
-        pchMessageStart[2] = 0x8b;
-        pchMessageStart[3] = 0x4d;
-        vAlertPubKey = ParseHex("04748daf02f6b47586b88c69271abc15c055f9dfc6c8af75268d75ccd9dd72a564ac25b23f1a5f35194236539bf4d832fd50dba00c766560d3edac0792236b632c");
-        nDefaultPort = 10712;
-        nRPCPort = 12107;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
-        const char* pszTimestamp = "10.7.2016 at 8:34 Ljubljana time. Happy 4th birthday Taj!";
-        std::vector<CTxIn> vin;
-        vin.resize(1);
-        vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
-        std::vector<CTxOut> vout;
-        vout.resize(1);
-        vout[0].SetEmpty();
-        CTransaction txNew(1, 1468132440, vin, vout, 0);
-        genesis.vtx.push_back(txNew);
-        genesis.hashPrevBlock = 0;
-        genesis.hashMerkleRoot = genesis.BuildMerkleTree();
-        genesis.nVersion = 1;
-        genesis.nTime    = 1468132440;
-        genesis.nBits    = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce   = 897589;
+ CMainParams() {
+    pchMessageStart[0] = 0xA4;
+    pchMessageStart[1] = 0xF9;
+    pchMessageStart[2] = 0xC2;
+    pchMessageStart[3] = 0x7D;
 
-        hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x00000b414afcc2b242531999ae4cc5e7279eaa1508aa72cb289cc175ebb1db2b"));
-        assert(genesis.hashMerkleRoot == uint256("0xb9cae0f7e601dd820bc91144000efcc4a6883e1b4b39a4b2034c1b0f5e075a52"));
+    vAlertPubKey = ParseHex("0403b1f9c7a2d4e8f1c9b2a7d3e4f8c1b9a2d7e3f4c8b1a9d2e7f3c4b8a1d9e2f3");
 
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node1.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node2.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node3.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node4.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node5.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node6.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node7.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node8.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "node9.tajcoin.tech"));
+    nDefaultPort = 29841;
+    nRPCPort     = 29842;
+     
+    bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,65);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,111);
-        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
-        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
+    const char* pszTimestamp = "chain launched.";
 
-        convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
+    std::vector<CTxIn> vin(1);
+    vin[0].scriptSig = CScript() << 0 << CBigNum(42)
+        << std::vector<unsigned char>(
+            (const unsigned char*)pszTimestamp,
+            (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
 
-        nLastPOWBlock = 900000;
-    }
+    std::vector<CTxOut> vout(1);
+    vout[0].SetEmpty();
+
+    CTransaction txNew(1, 1723704000, vin, vout, 0);
+    genesis.vtx.push_back(txNew);
+    genesis.hashPrevBlock = 0;
+    genesis.hashMerkleRoot = genesis.BuildMerkleTree();
+    genesis.nVersion = 1;
+    genesis.nTime    = 1723704000;
+    genesis.nBits    = bnProofOfWorkLimit.GetCompact();
+    genesis.nNonce   = 512884;
+
+    hashGenesisBlock = genesis.GetHash();
+
+    vSeeds.clear();
+    vFixedSeeds.clear();
+
+    vSeeds.push_back(CDNSSeedData("microcoin.rf.gd", "microcoin.rf.gd/dnsseed"));
+
+    base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 37);
+    base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);
+    base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1, 203);
+
+    base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E)
+        .convert_to_container<std::vector<unsigned char> >();
+    base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x88)(0xAD)(0xE4)
+        .convert_to_container<std::vector<unsigned char> >();
+
+    nLastPOWBlock = 2147483647;
+}
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
     virtual Network NetworkID() const { return CChainParams::MAIN; }
@@ -117,40 +116,34 @@ static CMainParams mainParams;
 class CTestNetParams : public CMainParams {
 public:
     CTestNetParams() {
-        // The message start string is designed to be unlikely to occur in normal data.
-        // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
-        // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x42;
-        pchMessageStart[1] = 0x6f;
-        pchMessageStart[2] = 0xe8;
-        pchMessageStart[3] = 0x13;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 8);
-        vAlertPubKey = ParseHex("04fd3abfe016aff55bd64a8b58a1ad35244c8c96c0afb761fa9ef1d6d5873a29bcba9517d73281c2b8932f0d018ce5ea1554f8ca9b8243639fe6a093617709ef4b");
-        nDefaultPort = 7120;
-        nRPCPort = 7122;
-        strDataDir = "testnet";
+       pchMessageStart[0] = 0x52;
+       pchMessageStart[1] = 0xC8;
+       pchMessageStart[2] = 0xF1;
+       pchMessageStart[3] = 0x3A;
 
-        // Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-        genesis.nTime    = 1467815326;
-        genesis.nNonce = 489;
+       bnProofOfWorkLimit = CBigNum(~uint256(0) >> 8);
 
-        hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x00f8aa29160c44e912a3c45d05dfba13031c9b6e667b7368f788e23afd88db78"));
+       vAlertPubKey = ParseHex("0409c3f1e7a2d8c4b1f9e3d7c2a8b4f1d9e7c3a2b1f4d8e3c7a9b2f1e4c3d7a8");
 
-        vFixedSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "test1.tajcoin.tech"));
-        vSeeds.push_back(CDNSSeedData("tajcoin.tech", "test2.tajcoin.tech"));
+       nDefaultPort = 19841;
+       nRPCPort     = 19842;
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
-        base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1,239);
-        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x35)(0x87)(0xCF).convert_to_container<std::vector<unsigned char> >();
-        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x04)(0x35)(0x83)(0x94).convert_to_container<std::vector<unsigned char> >();
+       strDataDir = "testnet";
 
-        convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
+       genesis.nBits  = bnProofOfWorkLimit.GetCompact();
+       genesis.nTime  = 1723704100;
+       genesis.nNonce = 99214;
 
-        nLastPOWBlock = 0x7fffffff;
+       hashGenesisBlock = genesis.GetHash();
+
+       vSeeds.clear();
+       vFixedSeeds.clear();
+
+       vSeeds.push_back(CDNSSeedData("microcoin.rf.gd", "microcoin.rf.gd/dnsseedtest"));
+
+       base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 111);
+       base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 196);
+       base58Prefixes[SECRET_KEY]     = std::vector<unsigned char>(1, 239);
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
