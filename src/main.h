@@ -87,6 +87,7 @@ extern bool fReindex;
 struct COrphanBlock;
 extern std::map<uint256, COrphanBlock*> mapOrphanBlocks;
 extern bool fHaveGUI;
+extern std::vector<CMicroBlock> vPendingMicroBlocks;
 
 // Settings
 extern bool fUseFastIndex;
