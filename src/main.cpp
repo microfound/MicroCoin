@@ -1449,6 +1449,13 @@ bool CBlock::DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex)
 
 bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 {
+	// Bundle pending micro-blocks into this block
+    for (const CMicroBlock& mb : vPendingMicroBlocks)
+     {
+         vtx.push_back(mb.tx);
+     }
+     vPendingMicroBlocks.clear();
+
     // Check it again in case a previous version let a bad block in, but skip BlockSig checking
     if (!CheckBlock(!fJustCheck, !fJustCheck, false))
         return false;
@@ -1961,7 +1968,11 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
 {
     // These are checks that are independent of context
     // that can be verified before saving an orphan block.
-
+    for (const CMicroBlock& mb : vPendingMicroBlocks)
+        {
+           if (mb.GetHash() >= UintToArith256(CBigNum().SetCompact(mb.nBits)).GetUint256())
+           return error("CheckBlock() : micro-block hash too high");
+        }
     // Size limits
     if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CheckBlock() : size limits failed"));
