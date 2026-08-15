@@ -704,4 +704,14 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
     for (int i = 0; i < nThreads; i++)
 	minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet));
 }
+CMicroBlock CreateNewMicroBlock(const CTransaction& tx, uint256 prevHash, uint32_t height) {
+    CMicroBlock mb;
+    mb.tx = tx;
+    mb.hashPrevMicroBlock = prevHash;
+    mb.nTime = GetAdjustedTime();
+    mb.nMicroHeight = height;
+    mb.nBits = GetNextWorkRequiredMicro(); // your micro-difficulty
+    mb.nNonce = 0;
+    return mb;
+}
 #endif
