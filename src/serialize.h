@@ -1245,5 +1245,14 @@ public:
         return (*this);
     }
 };
+template<typename Stream>
+void CMicroBlock::SerializationOp(Stream& s, int nType, int nVersion) {
+    READWRITE(hashPrevMicroBlock);
+    READWRITE(tx);
+    READWRITE(nTime);
+    READWRITE(nMicroHeight);
+    READWRITE(nBits);
+    READWRITE(nNonce);
+}
 
 #endif
