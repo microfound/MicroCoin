@@ -1298,5 +1298,32 @@ protected:
     friend void ::UnregisterWallet(CWalletInterface*);
     friend void ::UnregisterAllWallets();
 };
+class CMicroBlock
+{
+public:
+    uint256 prevHash;
+    CTransaction tx;
+    uint32_t nTime;
+    uint32_t nBits;
+    uint32_t nNonce;
 
+    CMicroBlock()
+    {
+        prevHash = 0;
+        nTime = 0;
+        nBits = 0;
+        nNonce = 0;
+    }
+
+    IMPLEMENT_SERIALIZE
+    (
+        READWRITE(prevHash);
+        READWRITE(tx);
+        READWRITE(nTime);
+        READWRITE(nBits);
+        READWRITE(nNonce);
+    )
+
+    uint256 GetHash() const;
+};
 #endif
