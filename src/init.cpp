@@ -163,7 +163,7 @@ std::string HelpMessage()
     string strUsage = _("Options:") + "\n";
     strUsage += "  -?                     " + _("This help message") + "\n";
     strUsage += "  -conf=<file>           " + _("Specify configuration file (default: tajcoin.conf)") + "\n";
-    strUsage += "  -pid=<file>            " + _("Specify pid file (default: tajcoind.pid)") + "\n";
+    strUsage += "  -pid=<file>            " + _("Specify pid file (default: tajcoin.pid)") + "\n";
     strUsage += " -gen " + _("Generate coins (default: 0)") + "\n";
     strUsage += "  -datadir=<dir>         " + _("Specify data directory") + "\n";
     strUsage += "  -wallet=<dir>          " + _("Specify wallet file (within data directory)") + "\n";
@@ -708,10 +708,10 @@ bool AppInit2(boost::thread_group& threadGroup)
                 InitWarning(msg);
             }
             else if (nLoadWalletRet == DB_TOO_NEW)
-                strErrors << _("Error loading wallet.dat: Wallet requires newer version of Tajcoin") << "\n";
+                strErrors << _("Error loading wallet.dat: Wallet requires newer version of Microcoin") << "\n";
             else if (nLoadWalletRet == DB_NEED_REWRITE)
             {
-                strErrors << _("Wallet needed to be rewritten: restart Tajcoin to complete") << "\n";
+                strErrors << _("Wallet needed to be rewritten: restart Microcoin to complete") << "\n";
                 LogPrintf("%s", strErrors.str());
                 return InitError(strErrors.str());
             }
