@@ -40,7 +40,7 @@ CTxMemPool mempool;
 
 map<uint256, CBlockIndex*> mapBlockIndex;
 set<pair<COutPoint, unsigned int> > setStakeSeen;
-
+std::vector<CMicroBlock> vPendingMicroBlocks;
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 
 unsigned int nStakeMinAge = 60 * 60 * 12; // 12 hours
