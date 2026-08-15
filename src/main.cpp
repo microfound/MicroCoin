@@ -3721,3 +3721,13 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     }
     return true;
 }
+uint256 CMicroBlock::GetHash() const
+{
+    CHashWriter ss(SER_GETHASH, 0);
+    ss << prevHash;
+    ss << tx;
+    ss << nTime;
+    ss << nBits;
+    ss << nNonce;
+    return ss.GetHash();
+}
