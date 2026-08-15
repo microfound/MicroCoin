@@ -210,5 +210,18 @@ public:
         return strprintf("CTxOut(nValue=%s, scriptPubKey=%s)", FormatMoney(nValue), scriptPubKey.ToString());
     }
 };
+class CMicroBlock {
+public:
+    uint256 hashPrevMicroBlock;
+    CTransaction tx;
+    uint32_t nTime;
+    uint32_t nMicroHeight;
+    uint32_t nBits;
+    uint32_t nNonce;
+
+    uint256 GetHash() const;
+    bool IsValid() const;
+};
+
 
 #endif
