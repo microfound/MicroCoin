@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = tajcoin-qt
+TARGET = microcoin-qt
 VERSION = 1.1.0.0
 INCLUDEPATH += src src/json src/qt
 QT += network
