@@ -59,7 +59,7 @@ vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
 
 vector<std::string> vHttpSeeds; // MicroCoin HTTP seed list
-
+vHttpSeeds.push_back("http://microcoin.rf.gd/dnsseed");
 // -----------------------------------------------------------------------------
 // Utility: basic HTTP GET (blocking, minimal)
 // -----------------------------------------------------------------------------
