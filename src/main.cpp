@@ -24,7 +24,7 @@ using namespace boost;
 using namespace boost::placeholders;
 
 #if defined(NDEBUG)
-# error "Tajcoin cannot be compiled without assertions."
+# error "Microcoin cannot be compiled without assertions."
 #endif
 
 //
@@ -41,6 +41,7 @@ CTxMemPool mempool;
 map<uint256, CBlockIndex*> mapBlockIndex;
 set<pair<COutPoint, unsigned int> > setStakeSeen;
 std::vector<CMicroBlock> vPendingMicroBlocks;
+std::vector<std::string> vHttpSeeds;
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 
 unsigned int nStakeMinAge = 60 * 60 * 12; // 12 hours
