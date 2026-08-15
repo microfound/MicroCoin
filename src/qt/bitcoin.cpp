@@ -168,12 +168,12 @@ int main(int argc, char *argv[])
 
     // Application identification (must be set before OptionsModel is initialized,
     // as it is used to locate QSettings)
-    app.setOrganizationName("Tajcoin");
+    app.setOrganizationName("Microcoin");
     //XXX app.setOrganizationDomain("");
     if(GetBoolArg("-testnet", false)) // Separate UI settings for testnet
-        app.setApplicationName("Tajcoin-Qt-testnet");
+        app.setApplicationName("Microcoin-Qt-testnet");
     else
-        app.setApplicationName("Tajcoin-Qt");
+        app.setApplicationName("Microcoin-Qt");
 
     // ... then GUI settings:
     OptionsModel optionsModel;
