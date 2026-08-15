@@ -66,6 +66,7 @@ enum
     LOCAL_BIND,   // address explicit bound to
     LOCAL_UPNP,   // address reported by UPnP
     LOCAL_MANUAL, // address explicitly specified (-externalip=)
+    MSG_MICROBLOCK
 
     LOCAL_MAX
 };
