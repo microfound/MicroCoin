@@ -135,6 +135,16 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
     // Add our coinbase tx as first transaction
     pblock->vtx.push_back(txNew);
+    // --- MICRO-BLOCK CREATION FOR MCU MINERS ---
+    CMicroBlock mb;
+    mb.tx = txNew;
+    mb.prevHash = pindexPrev->GetBlockHash();
+    mb.nTime = GetAdjustedTime();
+    mb.nBits = pblock->nBits;
+    mb.nNonce = 0;
+
+    // store micro-block for bundling later
+    vPendingMicroBlocks.push_back(mb);
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", MAX_BLOCK_SIZE_GEN/2);
@@ -704,14 +714,6 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
     for (int i = 0; i < nThreads; i++)
 	minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet));
 }
-CMicroBlock CreateNewMicroBlock(const CTransaction& tx, uint256 prevHash, uint32_t height) {
-    CMicroBlock mb;
-    mb.tx = tx;
-    mb.hashPrevMicroBlock = prevHash;
-    mb.nTime = GetAdjustedTime();
-    mb.nMicroHeight = height;
-    mb.nBits = GetNextWorkRequiredMicro(); // your micro-difficulty
-    mb.nNonce = 0;
-    return mb;
-}
+CMicroBlock mb = CreateNewMicroBlock(txNew, pindexPrev->GetBlockHash(), nHeight);
+vPendingMicroBlocks.push_back(mb);
 #endif
