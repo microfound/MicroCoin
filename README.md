@@ -1,7 +1,7 @@
-TAJCOIN
+Microcoin
 ======
 
-Tajcoin is a proof-of-work/proof-of-stake cryptocurrency with a focus on high performance, longevity and adoption services.
+Microcoin is a proof-of-work/proof-of-stake cryptocurrency with a focus on high performance, longevity and adoption services.
 
 
 SPECIFICATIONS
@@ -14,7 +14,7 @@ Difficulty retarget:    Every block
 
 Block time:             3 minutes
 
-Block reward:           99 TAJ, 66 TAJ (after block 300k), 33 TAJ (after block 600k)
+Block reward:           99 MC, 66 MC (after block 300k), 33 MC (after block 600k)
 
 Coinbase maturity:      33 blocks
 
@@ -25,8 +25,6 @@ PoS start:              from the first block
 Minimum PoS age:        12 hours
 
 Maximum PoS age:        no max (PoS 2.0)
-
-Max coins:              36900000 TAJs
 
 Network info:
 
