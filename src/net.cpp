@@ -590,3 +590,8 @@ void ThreadSocketHandler()
         }
     }
 }
+case MSG_MICROBLOCK:
+    CMicroBlock mb;
+    vRecv >> mb;
+    ProcessMicroBlock(mb);
+    break;
