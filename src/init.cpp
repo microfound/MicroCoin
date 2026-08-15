@@ -383,6 +383,10 @@ bool AppInit2(boost::thread_group& threadGroup)
             LogPrintf("AppInit2 : parameter interaction: -externalip set -> setting -discover=0\n");
     }
 
+    if (mapArgs.count("-addhttpseed"))
+        vHttpSeeds.push_back(mapArgs["-addhttpseed"]);
+    )
+
     if (GetBoolArg("-salvagewallet", false)) {
         // Rewrite just private keys: rescan to find transactions
         if (SoftSetBoolArg("-rescan", true))
