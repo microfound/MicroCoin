@@ -1,0 +1,59 @@
+name: Build Microcoin-Qt
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install Qt 5
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: 5.15.2
+        host: linux
+        target: desktop
+        modules: qtcharts qttools
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          build-essential \
+          libssl-dev \
+          libdb++-dev \
+          libboost-all-dev \
+          libminiupnpc-dev \
+          libqrencode-dev \
+          libprotobuf-dev protobuf-compiler \
+          libevent-dev \
+          pkg-config \
+          automake \
+          libtool \
+          git
+
+    - name: Build LevelDB (as required by your .pro)
+      run: |
+        cd src/leveldb
+        make libleveldb.a libmemenv.a
+
+    - name: Run qmake
+      run: |
+        qmake microcoin-qt.pro CONFIG+=release USE_UPNP=1 USE_QRCODE=1
+
+    - name: Build project
+      run: |
+        make -j$(nproc)
+
+    - name: Upload Microcoin-Qt binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: microcoin-qt
+        path: microcoin-qt
