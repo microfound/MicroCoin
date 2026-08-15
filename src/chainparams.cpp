@@ -82,7 +82,7 @@ public:
     vSeeds.clear();
     vFixedSeeds.clear();
 
-    vSeeds.push_back(CDNSSeedData("microcoin.rf.gd", "microcoin.rf.gd/dnsseed"));
+    vHttpSeeds.push_back("http://microcoin.rf.gd/dnsseed");
 
     base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 37);
     base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);
@@ -139,7 +139,7 @@ public:
        vSeeds.clear();
        vFixedSeeds.clear();
 
-       vSeeds.push_back(CDNSSeedData("microcoin.rf.gd", "microcoin.rf.gd/dnsseedtest"));
+       vHttpSeeds.push_back("http://microcoin.rf.gd/dnsseed/testnet");
 
        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 111);
        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 196);
