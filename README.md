@@ -2,7 +2,7 @@ Microcoin
 ======
 
 Microcoin is a proof-of-work/proof-of-stake cryptocurrency with a focus on high performance, longevity and adoption services.
-
+It is experimental and could be broken.
 
 SPECIFICATIONS
 --------------
@@ -17,8 +17,6 @@ Block time:             3 minutes
 Block reward:           99 MC, 66 MC (after block 300k), 33 MC (after block 600k)
 
 Coinbase maturity:      33 blocks
-
-Last PoW block:         900000
 
 PoS start:              from the first block
 
