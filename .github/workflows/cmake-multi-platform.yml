@@ -22,6 +22,22 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    - name: Enable OpenSSL 3 Legacy Provider
+      run: |
+        sudo bash -c 'cat > /etc/ssl/legacy.cnf <<EOF
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+
+[provider_sect]
+legacy = legacy_sect
+
+[legacy_sect]
+activate = 1
+EOF'
+        export OPENSSL_CONF=/etc/ssl/legacy.cnf
+
     - name: Install Qt 5
       uses: jurplel/install-qt-action@v3
       with:
@@ -44,17 +60,7 @@ jobs:
           pkg-config \
           automake \
           libtool \
-          git \
-          curl
-
-    - name: Install OpenSSL 1.1.1u (Linux)
-      run: |
-        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
-        tar -xzf openssl-1.1.1u.tar.gz
-        cd openssl-1.1.1u
-        ./config no-shared --prefix=/usr/local/openssl-1.1
-        make -j$(nproc)
-        sudo make install_sw
+          git
 
     - name: Build LevelDB
       run: |
@@ -63,10 +69,12 @@ jobs:
 
     - name: Run qmake
       run: |
-        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/local/openssl-1.1/lib OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1/include
+        export OPENSSL_CONF=/etc/ssl/legacy.cnf
+        qmake microcoin-qt.pro
 
     - name: Build project
       run: |
+        export OPENSSL_CONF=/etc/ssl/legacy.cnf
         make -j$(nproc)
 
     - name: Upload Linux binary
@@ -90,26 +98,14 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y \
-          make \
-          automake \
-          autoconf \
-          libtool \
-          g++ \
-          pkg-config \
-          git \
-          wget \
-          autopoint \
-          gperf \
-          intltool \
-          lzip \
-          python3-mako \
-          gdk-pixbuf2.0-dev
+          make automake autoconf libtool g++ pkg-config git wget \
+          autopoint gperf intltool lzip python3-mako gdk-pixbuf2.0-dev
 
-    - name: Build MXE with OpenSSL 1.1
+    - name: Build MXE core
       run: |
         git clone https://github.com/mxe/mxe.git
         cd mxe
-        make -j$(nproc) MXE_TARGETS=x86_64-w64-mingw32.static openssl
+        make -j$(nproc) MXE_TARGETS=x86_64-w64-mingw32.static qtbase
 
     - name: Build LevelDB (Windows)
       run: |
@@ -118,10 +114,12 @@ jobs:
 
     - name: Run qmake (Windows)
       run: |
+        export OPENSSL_CONF=/etc/ssl/legacy.cnf
         /home/runner/work/MicroCoin/MicroCoin/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
 
     - name: Build project (Windows)
       run: |
+        export OPENSSL_CONF=/etc/ssl/legacy.cnf
         make -j$(nproc)
 
     - name: Upload Windows binary
@@ -141,6 +139,22 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
+    - name: Enable OpenSSL 3 Legacy Provider (macOS)
+      run: |
+        cat > legacy.cnf <<EOF
+openssl_conf = openssl_init
+
+[openssl_init]
+providers = provider_sect
+
+[provider_sect]
+legacy = legacy_sect
+
+[legacy_sect]
+activate = 1
+EOF
+        export OPENSSL_CONF=$PWD/legacy.cnf
+
     - name: Install Qt 5
       uses: jurplel/install-qt-action@v3
       with:
@@ -152,27 +166,7 @@ jobs:
     - name: Install dependencies
       run: |
         brew update
-        brew install protobuf qrencode miniupnpc curl
-
-    - name: Install OpenSSL 1.1.1u (Intel)
-      if: runner.arch == 'X64'
-      run: |
-        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
-        tar -xzf openssl-1.1.1u.tar.gz
-        cd openssl-1.1.1u
-        ./Configure darwin64-x86_64-cc no-shared --prefix=/usr/local/openssl-1.1-intel
-        make -j$(sysctl -n hw.ncpu)
-        sudo make install_sw
-
-    - name: Install OpenSSL 1.1.1u (ARM64)
-      if: runner.arch == 'ARM64'
-      run: |
-        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
-        tar -xzf openssl-1.1.1u.tar.gz
-        cd openssl-1.1.1u
-        ./Configure darwin64-arm64-cc no-shared --prefix=/usr/local/openssl-1.1-arm64
-        make -j$(sysctl -n hw.ncpu)
-        sudo make install_sw
+        brew install openssl@3 protobuf qrencode miniupnpc
 
     - name: Build LevelDB (macOS)
       run: |
@@ -181,17 +175,12 @@ jobs:
 
     - name: Run qmake (macOS)
       run: |
-        if [ "$(uname -m)" = "x86_64" ]; then \
-          OPENSSL_LIB_PATH=/usr/local/openssl-1.1-intel/lib; \
-          OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1-intel/include; \
-        else \
-          OPENSSL_LIB_PATH=/usr/local/openssl-1.1-arm64/lib; \
-          OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1-arm64/include; \
-        fi; \
-        qmake microcoin-qt.pro OPENSSL_LIB_PATH=$OPENSSL_LIB_PATH OPENSSL_INCLUDE_PATH=$OPENSSL_INCLUDE_PATH
+        export OPENSSL_CONF=$PWD/legacy.cnf
+        qmake microcoin-qt.pro
 
     - name: Build project (macOS)
       run: |
+        export OPENSSL_CONF=$PWD/legacy.cnf
         make -j$(sysctl -n hw.ncpu)
 
     - name: Upload macOS app
