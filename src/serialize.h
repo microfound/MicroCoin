@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <cstring>
 #include <cstdio>
+#include "core.h"
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/tuple/tuple.hpp>
