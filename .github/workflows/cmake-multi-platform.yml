@@ -45,14 +45,16 @@ jobs:
           automake \
           libtool \
           git \
-          wget
+          curl
 
-    - name: Install OpenSSL 1.1 manually
+    - name: Install OpenSSL 1.1.1u (Linux)
       run: |
-        wget https://snapshot.debian.org/archive/debian-security/20230201T000000Z/pool/updates/main/o/openssl1.1/libssl1.1_1.1.1n-0+deb11u4_amd64.deb
-        wget https://snapshot.debian.org/archive/debian-security/20230201T000000Z/pool/updates/main/o/openssl1.1/libssl-dev_1.1.1n-0+deb11u4_amd64.deb
-        sudo dpkg -i libssl1.1_1.1.1n-0+deb11u4_amd64.deb
-        sudo dpkg -i libssl-dev_1.1.1n-0+deb11u4_amd64.deb
+        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
+        tar -xzf openssl-1.1.1u.tar.gz
+        cd openssl-1.1.1u
+        ./config no-shared --prefix=/usr/local/openssl-1.1
+        make -j$(nproc)
+        sudo make install_sw
 
     - name: Build LevelDB
       run: |
@@ -61,7 +63,7 @@ jobs:
 
     - name: Run qmake
       run: |
-        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/lib OPENSSL_INCLUDE_PATH=/usr/include
+        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/local/openssl-1.1/lib OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1/include
 
     - name: Build project
       run: |
@@ -84,10 +86,27 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Install MXE manually
+    - name: Install MXE dependencies
       run: |
         sudo apt update
-        sudo apt install -y make automake autoconf libtool g++ pkg-config git wget
+        sudo apt install -y \
+          make \
+          automake \
+          autoconf \
+          libtool \
+          g++ \
+          pkg-config \
+          git \
+          wget \
+          autopoint \
+          gperf \
+          intltool \
+          lzip \
+          python3-mako \
+          gdk-pixbuf2.0-dev
+
+    - name: Build MXE with OpenSSL 1.1
+      run: |
         git clone https://github.com/mxe/mxe.git
         cd mxe
         make -j$(nproc) MXE_TARGETS=x86_64-w64-mingw32.static openssl
@@ -99,7 +118,7 @@ jobs:
 
     - name: Run qmake (Windows)
       run: |
-        /usr/lib/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
+        /home/runner/work/MicroCoin/MicroCoin/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
 
     - name: Build project (Windows)
       run: |
@@ -113,7 +132,7 @@ jobs:
 
 
   # ============================
-  # MACOS BUILD (NATIVE)
+  # MACOS BUILD (INTEL + ARM64 UNIVERSAL)
   # ============================
   macos:
     runs-on: macos-latest
@@ -130,14 +149,30 @@ jobs:
         target: desktop
         modules: qtcharts
 
-    - name: Install OpenSSL 1.1 manually (archived bottle)
-      run: |
-        wget https://raw.githubusercontent.com/Homebrew/homebrew-core/6f3b1b4b0b8b1b2b9b7d3f9e7d8a1c9a1b2c3d4e/Formula/openssl@1.1.rb
-        brew install ./openssl@1.1.rb
-
     - name: Install dependencies
       run: |
-        brew install protobuf qrencode miniupnpc
+        brew update
+        brew install protobuf qrencode miniupnpc curl
+
+    - name: Install OpenSSL 1.1.1u (Intel)
+      if: runner.arch == 'X64'
+      run: |
+        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
+        tar -xzf openssl-1.1.1u.tar.gz
+        cd openssl-1.1.1u
+        ./Configure darwin64-x86_64-cc no-shared --prefix=/usr/local/openssl-1.1-intel
+        make -j$(sysctl -n hw.ncpu)
+        sudo make install_sw
+
+    - name: Install OpenSSL 1.1.1u (ARM64)
+      if: runner.arch == 'ARM64'
+      run: |
+        curl -O https://www.openssl.org/source/openssl-1.1.1u.tar.gz
+        tar -xzf openssl-1.1.1u.tar.gz
+        cd openssl-1.1.1u
+        ./Configure darwin64-arm64-cc no-shared --prefix=/usr/local/openssl-1.1-arm64
+        make -j$(sysctl -n hw.ncpu)
+        sudo make install_sw
 
     - name: Build LevelDB (macOS)
       run: |
@@ -146,7 +181,14 @@ jobs:
 
     - name: Run qmake (macOS)
       run: |
-        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/local/opt/openssl@1.1/lib OPENSSL_INCLUDE_PATH=/usr/local/opt/openssl@1.1/include
+        if [ "$(uname -m)" = "x86_64" ]; then \
+          OPENSSL_LIB_PATH=/usr/local/openssl-1.1-intel/lib; \
+          OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1-intel/include; \
+        else \
+          OPENSSL_LIB_PATH=/usr/local/openssl-1.1-arm64/lib; \
+          OPENSSL_INCLUDE_PATH=/usr/local/openssl-1.1-arm64/include; \
+        fi; \
+        qmake microcoin-qt.pro OPENSSL_LIB_PATH=$OPENSSL_LIB_PATH OPENSSL_INCLUDE_PATH=$OPENSSL_INCLUDE_PATH
 
     - name: Build project (macOS)
       run: |
