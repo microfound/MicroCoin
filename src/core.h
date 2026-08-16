@@ -23,7 +23,12 @@ public:
 
     COutPoint() { SetNull(); }
     COutPoint(uint256 hashIn, unsigned int nIn) { hash = hashIn; n = nIn; }
-    IMPLEMENT_SERIALIZE( READWRITE(FLATDATA(*this)); )
+
+    IMPLEMENT_SERIALIZE
+    (
+        READWRITE(FLATDATA(*this));
+    )
+
     void SetNull() { hash = 0; n = (unsigned int) -1; }
     bool IsNull() const { return (hash == 0 && n == (unsigned int) -1); }
 
@@ -61,10 +66,7 @@ public:
     bool IsNull() const { return (ptx == NULL && n == (unsigned int) -1); }
 };
 
-/** An input of a transaction.  It contains the location of the previous
- * transaction's output that it claims and a signature that matches the
- * output's public key.
- */
+/** An input of a transaction. */
 class CTxIn
 {
 public:
@@ -77,26 +79,31 @@ public:
         nSequence = std::numeric_limits<unsigned int>::max();
     }
 
-    explicit CTxIn(COutPoint prevoutIn, CScript scriptSigIn=CScript(), unsigned int nSequenceIn=std::numeric_limits<unsigned int>::max())
+    explicit CTxIn(COutPoint prevoutIn, CScript scriptSigIn=CScript(),
+                   unsigned int nSequenceIn=std::numeric_limits<unsigned int>::max())
     {
         prevout = prevoutIn;
         scriptSig = scriptSigIn;
         nSequence = nSequenceIn;
     }
 
-    CTxIn(uint256 hashPrevTx, unsigned int nOut, CScript scriptSigIn=CScript(), unsigned int nSequenceIn=std::numeric_limits<unsigned int>::max())
+    CTxIn(uint256 hashPrevTx, unsigned int nOut, CScript scriptSigIn=CScript(),
+          unsigned int nSequenceIn=std::numeric_limits<unsigned int>::max())
     {
         prevout = COutPoint(hashPrevTx, nOut);
         scriptSig = scriptSigIn;
         nSequence = nSequenceIn;
     }
 
-    IMPLEMENT_SERIALIZE
-    (
+    ADD_SERIALIZE_METHODS;
+
+    template<typename Stream>
+    void SerializationOp(Stream& s, int nType, int nVersion)
+    {
         READWRITE(prevout);
         READWRITE(scriptSig);
         READWRITE(nSequence);
-    )
+    }
 
     bool IsFinal() const
     {
@@ -131,12 +138,7 @@ public:
     }
 };
 
-
-
-
-/** An output of a transaction.  It contains the public key that the next input
- * must be able to sign with to claim it.
- */
+/** An output of a transaction. */
 class CTxOut
 {
 public:
@@ -154,11 +156,14 @@ public:
         scriptPubKey = scriptPubKeyIn;
     }
 
-    IMPLEMENT_SERIALIZE
-    (
+    ADD_SERIALIZE_METHODS;
+
+    template<typename Stream>
+    void SerializationOp(Stream& s, int nType, int nVersion)
+    {
         READWRITE(nValue);
         READWRITE(scriptPubKey);
-    )
+    }
 
     void SetNull()
     {
@@ -189,8 +194,8 @@ public:
 
     bool IsUnspendable() const
     {
-         return IsEmpty() ||
-                (scriptPubKey.size() > 0 && *scriptPubKey.begin() == OP_RETURN);
+        return IsEmpty() ||
+               (scriptPubKey.size() > 0 && *scriptPubKey.begin() == OP_RETURN);
     }
 
     friend bool operator==(const CTxOut& a, const CTxOut& b)
@@ -207,9 +212,11 @@ public:
     std::string ToString() const
     {
         if (IsEmpty()) return "CTxOut(empty)";
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s)", FormatMoney(nValue), scriptPubKey.ToString());
+        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s)",
+                         FormatMoney(nValue), scriptPubKey.ToString());
     }
 };
+
 class CMicroBlock
 {
 public:
@@ -236,6 +243,5 @@ public:
     uint256 GetHash() const;
     bool    IsValid() const;
 };
-
 
 #endif
