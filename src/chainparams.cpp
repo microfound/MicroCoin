@@ -82,7 +82,7 @@ public:
     vSeeds.clear();
     vFixedSeeds.clear();
 
-    vHttpSeeds.push_back("http://microcoin.rf.gd/dnsseed");
+    vHttpSeeds.push_back("https://microfound.github.io/dnsseed/dnsseed.txt");
 
     base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 37);
     base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);
