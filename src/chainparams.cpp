@@ -131,7 +131,7 @@ public:
        strDataDir = "testnet";
 
        genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-       genesis.nTime  = 1723704100;
+       genesis.nTime  = 1789554060;
        genesis.nNonce = 99214;
 
        hashGenesisBlock = genesis.GetHash();
