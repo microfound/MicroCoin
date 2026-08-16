@@ -31,7 +31,6 @@ jobs:
         sudo apt update
         sudo apt install -y \
           build-essential \
-          libssl-dev \
           libdb++-dev \
           libboost-all-dev \
           libminiupnpc-dev \
@@ -42,7 +41,14 @@ jobs:
           automake \
           libtool \
           git
-
+          
+     - name: Install OpenSSL 1.1
+       run: |
+         sudo apt-get update
+         sudo apt-get install -y libssl1.1 || true
+         wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.1/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+         sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+         
     - name: Build LevelDB (as required by your .pro)
       run: |
         cd src/leveldb
