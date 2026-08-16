@@ -210,17 +210,31 @@ public:
         return strprintf("CTxOut(nValue=%s, scriptPubKey=%s)", FormatMoney(nValue), scriptPubKey.ToString());
     }
 };
-class CMicroBlock {
+class CMicroBlock
+{
 public:
-    uint256 hashPrevMicroBlock;
+    uint256      hashPrevMicroBlock;
     CTransaction tx;
-    uint32_t nTime;
-    uint32_t nMicroHeight;
-    uint32_t nBits;
-    uint32_t nNonce;
+    uint32_t     nTime;
+    uint32_t     nMicroHeight;
+    uint32_t     nBits;
+    uint32_t     nNonce;
+
+    ADD_SERIALIZE_METHODS;
+
+    template<typename Stream>
+    void SerializationOp(Stream& s, int nType, int nVersion)
+    {
+        READWRITE(hashPrevMicroBlock);
+        READWRITE(tx);
+        READWRITE(nTime);
+        READWRITE(nMicroHeight);
+        READWRITE(nBits);
+        READWRITE(nNonce);
+    }
 
     uint256 GetHash() const;
-    bool IsValid() const;
+    bool    IsValid() const;
 };
 
 
