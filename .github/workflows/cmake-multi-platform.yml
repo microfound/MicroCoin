@@ -12,159 +12,134 @@ env:
 
 jobs:
 
-  # ============================
-  # LINUX x86_64 BUILD
-  # ============================
   linux:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Enable OpenSSL 3 Legacy Provider
       run: |
         sudo sh -c "echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > /etc/ssl/legacy.cnf"
         export OPENSSL_CONF=/etc/ssl/legacy.cnf
 
-    - name: Install Qt 5
+    - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
         version: 5.15.2
         host: linux
         target: desktop
-        modules: qtcharts
 
-    - name: Install dependencies
+    - name: Install deps
       run: |
         sudo apt update
         sudo apt install -y \
-          build-essential \
-          libdb++-dev \
-          libboost-all-dev \
-          libminiupnpc-dev \
-          libqrencode-dev \
+          build-essential libdb++-dev libboost-all-dev \
+          libminiupnpc-dev libqrencode-dev \
           libprotobuf-dev protobuf-compiler \
-          libevent-dev \
-          pkg-config \
-          automake \
-          libtool \
-          git
+          libevent-dev pkg-config automake libtool git
 
     - name: Build LevelDB
       run: |
         cd src/leveldb
         make libleveldb.a libmemenv.a
 
-    - name: Run qmake
+    - name: qmake
       run: |
         export OPENSSL_CONF=/etc/ssl/legacy.cnf
         qmake microcoin-qt.pro
 
-    - name: Build project
+    - name: Build
       run: |
         export OPENSSL_CONF=/etc/ssl/legacy.cnf
         make -j$(nproc)
 
-    - name: Upload Linux binary
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: microcoin-qt-linux
         path: microcoin-qt
 
 
-  # ============================
-  # WINDOWS BUILD (MXE CROSS-COMPILE)
-  # ============================
   windows:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Install MXE dependencies
+    - name: Install MXE deps
       run: |
         sudo apt update
         sudo apt install -y \
-          make automake autoconf libtool g++ pkg-config git wget \
+          make automake autoconf libtool libtool-bin g++ pkg-config git wget \
           autopoint gperf intltool lzip python3-mako \
           libgdk-pixbuf-2.0-dev
 
-    - name: Build MXE core
+    - name: Build MXE
       run: |
         git clone https://github.com/mxe/mxe.git
         cd mxe
         make -j$(nproc) MXE_TARGETS=x86_64-w64-mingw32.static qtbase
 
-    - name: Build LevelDB (Windows)
+    - name: Build LevelDB
       run: |
         cd src/leveldb
-        make CC=x86_64-w64-mingw32.static-gcc CXX=x86_64-w64-mingw32.static-g++ libleveldb.a libmemenv.a
+        make CC=x86_64-w64-mingw32.static-gcc \
+             CXX=x86_64-w64-mingw32.static-g++ \
+             libleveldb.a libmemenv.a
 
-    - name: Run qmake (Windows)
+    - name: qmake
       run: |
         echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > legacy.cnf
         export OPENSSL_CONF=$PWD/legacy.cnf
         /home/runner/work/MicroCoin/MicroCoin/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
 
-    - name: Build project (Windows)
+    - name: Build
       run: |
         export OPENSSL_CONF=$PWD/legacy.cnf
         make -j$(nproc)
 
-    - name: Upload Windows binary
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: microcoin-qt-windows
         path: microcoin-qt.exe
 
 
-  # ============================
-  # MACOS BUILD (INTEL + ARM64 UNIVERSAL)
-  # ============================
   macos:
     runs-on: macos-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-    - name: Enable OpenSSL 3 Legacy Provider (macOS)
+    - name: Enable OpenSSL 3 Legacy Provider
       run: |
         echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > legacy.cnf
         export OPENSSL_CONF=$PWD/legacy.cnf
 
-    - name: Install Qt 5
+    - name: Install Qt
       uses: jurplel/install-qt-action@v3
       with:
         version: 5.15.2
         host: mac
         target: desktop
-        modules: qtcharts
 
-    - name: Install dependencies
+    - name: Install deps
       run: |
         brew update
         brew install openssl@3 protobuf qrencode miniupnpc
 
-    - name: Build LevelDB (macOS)
+    - name: Build LevelDB
       run: |
         cd src/leveldb
         make libleveldb.a libmemenv.a
 
-    - name: Run qmake (macOS)
+    - name: qmake
       run: |
         export OPENSSL_CONF=$PWD/legacy.cnf
         qmake microcoin-qt.pro
 
-    - name: Build project (macOS)
+    - name: Build
       run: |
         export OPENSSL_CONF=$PWD/legacy.cnf
         make -j$(sysctl -n hw.ncpu)
 
-    - name: Upload macOS app
-      uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v4
       with:
         name: microcoin-qt-macos
         path: MicroCoin-Qt.app
