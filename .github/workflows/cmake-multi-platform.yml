@@ -142,18 +142,18 @@ EOF'
     - name: Enable OpenSSL 3 Legacy Provider (macOS)
       run: |
         cat > legacy.cnf <<EOF
-openssl_conf = openssl_init
+       openssl_conf = openssl_init
 
-[openssl_init]
-providers = provider_sect
+       [openssl_init]
+       providers = provider_sect
 
-[provider_sect]
-legacy = legacy_sect
+       [provider_sect]
+       legacy = legacy_sect
 
-[legacy_sect]
-activate = 1
-EOF
-        export OPENSSL_CONF=$PWD/legacy.cnf
+       [legacy_sect]
+       activate = 1
+       EOF
+       export OPENSSL_CONF=$PWD/legacy.cnf
 
     - name: Install Qt 5
       uses: jurplel/install-qt-action@v3
