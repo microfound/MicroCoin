@@ -24,7 +24,7 @@ jobs:
 
     - name: Enable OpenSSL 3 Legacy Provider
       run: |
-        sudo sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > /etc/ssl/legacy.cnf
+        sudo sh -c "echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > /etc/ssl/legacy.cnf"
         export OPENSSL_CONF=/etc/ssl/legacy.cnf
 
     - name: Install Qt 5
@@ -88,7 +88,8 @@ jobs:
         sudo apt update
         sudo apt install -y \
           make automake autoconf libtool g++ pkg-config git wget \
-          autopoint gperf intltool lzip python3-mako gdk-pixbuf2.0-dev
+          autopoint gperf intltool lzip python3-mako \
+          libgdk-pixbuf-2.0-dev
 
     - name: Build MXE core
       run: |
@@ -103,7 +104,7 @@ jobs:
 
     - name: Run qmake (Windows)
       run: |
-        sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > legacy.cnf
+        echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > legacy.cnf
         export OPENSSL_CONF=$PWD/legacy.cnf
         /home/runner/work/MicroCoin/MicroCoin/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
 
@@ -131,7 +132,7 @@ jobs:
 
     - name: Enable OpenSSL 3 Legacy Provider (macOS)
       run: |
-        sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > legacy.cnf
+        echo 'openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' | tr '\n' '\n' > legacy.cnf
         export OPENSSL_CONF=$PWD/legacy.cnf
 
     - name: Install Qt 5
