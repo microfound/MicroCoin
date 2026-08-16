@@ -44,14 +44,15 @@ jobs:
           pkg-config \
           automake \
           libtool \
-          git
+          git \
+          wget
 
-    - name: Install OpenSSL 1.1
+    - name: Install OpenSSL 1.1 manually
       run: |
-        sudo apt-get update
-        sudo apt-get install -y libssl1.1 || true
-        wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.1/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
-        sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+        wget https://snapshot.debian.org/archive/debian-security/20230201T000000Z/pool/updates/main/o/openssl1.1/libssl1.1_1.1.1n-0+deb11u4_amd64.deb
+        wget https://snapshot.debian.org/archive/debian-security/20230201T000000Z/pool/updates/main/o/openssl1.1/libssl-dev_1.1.1n-0+deb11u4_amd64.deb
+        sudo dpkg -i libssl1.1_1.1.1n-0+deb11u4_amd64.deb
+        sudo dpkg -i libssl-dev_1.1.1n-0+deb11u4_amd64.deb
 
     - name: Build LevelDB
       run: |
@@ -60,7 +61,7 @@ jobs:
 
     - name: Run qmake
       run: |
-        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/lib/x86_64-linux-gnu OPENSSL_INCLUDE_PATH=/usr/include/openssl
+        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/lib OPENSSL_INCLUDE_PATH=/usr/include
 
     - name: Build project
       run: |
@@ -83,10 +84,13 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Install MXE
+    - name: Install MXE manually
       run: |
         sudo apt update
-        sudo apt install -y mxe-x86-64-w64-mingw32.static
+        sudo apt install -y make automake autoconf libtool g++ pkg-config git wget
+        git clone https://github.com/mxe/mxe.git
+        cd mxe
+        make -j$(nproc) MXE_TARGETS=x86_64-w64-mingw32.static openssl
 
     - name: Build LevelDB (Windows)
       run: |
@@ -126,10 +130,14 @@ jobs:
         target: desktop
         modules: qtcharts
 
+    - name: Install OpenSSL 1.1 manually (archived bottle)
+      run: |
+        wget https://raw.githubusercontent.com/Homebrew/homebrew-core/6f3b1b4b0b8b1b2b9b7d3f9e7d8a1c9a1b2c3d4e/Formula/openssl@1.1.rb
+        brew install ./openssl@1.1.rb
+
     - name: Install dependencies
       run: |
-        brew update
-        brew install openssl@1.1 protobuf qrencode miniupnpc
+        brew install protobuf qrencode miniupnpc
 
     - name: Build LevelDB (macOS)
       run: |
