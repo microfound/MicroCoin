@@ -6,12 +6,16 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+
 jobs:
-  build:
+
+  # ============================
+  # LINUX x86_64 BUILD
+  # ============================
+  linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,19 +45,15 @@ jobs:
           automake \
           libtool \
           git
-          
-     - name: Install OpenSSL 1.1
-       run: |
-         sudo apt-get update
-         sudo apt-get install -y libssl1.1 || true
-         wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.1/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
-         sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
-     - name: setpath
-       run: |
-            export OPENSSL_LIB_PATH=/usr/lib/x86_64-linux-gnu \
-            export OPENSSL_INCLUDE_PATH=/usr/include/openssl
 
-    - name: Build LevelDB (as required by your .pro)
+    - name: Install OpenSSL 1.1
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libssl1.1 || true
+        wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl1.1/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+        sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+
+    - name: Build LevelDB
       run: |
         cd src/leveldb
         make libleveldb.a libmemenv.a
@@ -61,12 +61,91 @@ jobs:
     - name: Run qmake
       run: |
         qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/lib/x86_64-linux-gnu OPENSSL_INCLUDE_PATH=/usr/include/openssl
+
     - name: Build project
       run: |
         make -j$(nproc)
 
-    - name: Upload Microcoin-Qt binary
+    - name: Upload Linux binary
       uses: actions/upload-artifact@v4
       with:
-        name: microcoin-qt
+        name: microcoin-qt-linux
         path: microcoin-qt
+
+
+  # ============================
+  # WINDOWS BUILD (MXE CROSS-COMPILE)
+  # ============================
+  windows:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Install MXE
+      run: |
+        sudo apt update
+        sudo apt install -y mxe-x86-64-w64-mingw32.static
+
+    - name: Build LevelDB (Windows)
+      run: |
+        cd src/leveldb
+        make CC=x86_64-w64-mingw32.static-gcc CXX=x86_64-w64-mingw32.static-g++ libleveldb.a libmemenv.a
+
+    - name: Run qmake (Windows)
+      run: |
+        /usr/lib/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
+
+    - name: Build project (Windows)
+      run: |
+        make -j$(nproc)
+
+    - name: Upload Windows binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: microcoin-qt-windows
+        path: microcoin-qt.exe
+
+
+  # ============================
+  # MACOS BUILD (NATIVE)
+  # ============================
+  macos:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Install Qt 5
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: 5.15.2
+        host: mac
+        target: desktop
+        modules: qtcharts
+
+    - name: Install dependencies
+      run: |
+        brew update
+        brew install openssl@1.1 protobuf qrencode miniupnpc
+
+    - name: Build LevelDB (macOS)
+      run: |
+        cd src/leveldb
+        make libleveldb.a libmemenv.a
+
+    - name: Run qmake (macOS)
+      run: |
+        qmake microcoin-qt.pro OPENSSL_LIB_PATH=/usr/local/opt/openssl@1.1/lib OPENSSL_INCLUDE_PATH=/usr/local/opt/openssl@1.1/include
+
+    - name: Build project (macOS)
+      run: |
+        make -j$(sysctl -n hw.ncpu)
+
+    - name: Upload macOS app
+      uses: actions/upload-artifact@v4
+      with:
+        name: microcoin-qt-macos
+        path: MicroCoin-Qt.app
