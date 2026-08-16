@@ -24,7 +24,7 @@ jobs:
         version: 5.15.2
         host: linux
         target: desktop
-        modules: qtcharts qttools-dev
+        modules: qtcharts
 
     - name: Install dependencies
       run: |
