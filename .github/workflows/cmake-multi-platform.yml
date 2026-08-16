@@ -24,18 +24,7 @@ jobs:
 
     - name: Enable OpenSSL 3 Legacy Provider
       run: |
-        sudo bash -c 'cat > /etc/ssl/legacy.cnf <<EOF
-openssl_conf = openssl_init
-
-[openssl_init]
-providers = provider_sect
-
-[provider_sect]
-legacy = legacy_sect
-
-[legacy_sect]
-activate = 1
-EOF'
+        sudo sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > /etc/ssl/legacy.cnf
         export OPENSSL_CONF=/etc/ssl/legacy.cnf
 
     - name: Install Qt 5
@@ -114,12 +103,13 @@ EOF'
 
     - name: Run qmake (Windows)
       run: |
-        export OPENSSL_CONF=/etc/ssl/legacy.cnf
+        sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > legacy.cnf
+        export OPENSSL_CONF=$PWD/legacy.cnf
         /home/runner/work/MicroCoin/MicroCoin/mxe/usr/bin/x86_64-w64-mingw32.static-qmake microcoin-qt.pro
 
     - name: Build project (Windows)
       run: |
-        export OPENSSL_CONF=/etc/ssl/legacy.cnf
+        export OPENSSL_CONF=$PWD/legacy.cnf
         make -j$(nproc)
 
     - name: Upload Windows binary
@@ -141,19 +131,8 @@ EOF'
 
     - name: Enable OpenSSL 3 Legacy Provider (macOS)
       run: |
-        cat > legacy.cnf <<EOF
-       openssl_conf = openssl_init
-
-       [openssl_init]
-       providers = provider_sect
-
-       [provider_sect]
-       legacy = legacy_sect
-
-       [legacy_sect]
-       activate = 1
-       EOF
-       export OPENSSL_CONF=$PWD/legacy.cnf
+        sed -e '1i openssl_conf = openssl_init\n\n[openssl_init]\nproviders = provider_sect\n\n[provider_sect]\nlegacy = legacy_sect\n\n[legacy_sect]\nactivate = 1' /dev/null > legacy.cnf
+        export OPENSSL_CONF=$PWD/legacy.cnf
 
     - name: Install Qt 5
       uses: jurplel/install-qt-action@v3
