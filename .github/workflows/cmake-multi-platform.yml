@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Qt 5
       uses: jurplel/install-qt-action@v3
@@ -54,7 +54,7 @@ jobs:
         make -j$(nproc)
 
     - name: Upload Microcoin-Qt binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: microcoin-qt
         path: microcoin-qt
